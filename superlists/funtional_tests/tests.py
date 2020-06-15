@@ -39,6 +39,8 @@ class NewVistorTest(LiveServerTestCase):
         s1 = "Buy peacock feathers"
         input_box.send_keys(s1)
         input_box.send_keys(Keys.ENTER)
+        edith_list_url = self.browser.current_url
+        self.assertRegex(edith_list_url, "/lists/.+")
         time.sleep(1)
         self.check_for_row_in_list_table(row_text=f"1: {s1}")
 
@@ -51,6 +53,27 @@ class NewVistorTest(LiveServerTestCase):
         self.check_for_row_in_list_table(row_text=f"2: {s2}")
         self.check_for_row_in_list_table(row_text=f"1: {s1}")
         # time.sleep(10)
+
+        self.browser.quit()
+        self.browser = webdriver.Chrome(DRIVER_CHROME_FPN)
+
+        self.browser.get(self.browser.current_url)
+        page_text = self.browser.find_element_by_tag_name("body").text
+        self.assertIn(s1, page_text)
+        self.assertIn(s2, page_text)
+
+        s3 = "buy milk"
+        input_box = self.browser.find_element_by_id("id_new_item")
+        input_box.send_keys(s3)
+        input_box.send_keys(Keys.ENTER)
+
+        francis_list_url = self.browser.current_url
+        self.assertRegex(francis_list_url, "/lists/.+")
+        self.assertNotEqual(francis_list_url, edith_list_url)
+
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn(s1, page_text)
+        self.assertIn(s3, page_text)
 
         self.fail("finish the test")
 
