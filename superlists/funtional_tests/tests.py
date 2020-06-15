@@ -23,6 +23,10 @@ class NewVistorTest(LiveServerTestCase):
         self.assertIn(row_text, [row.text for row in rows])
 
     def test_can_start_a_list_and_retrive_it_later(self):
+        s1 = "Buy peacock feathers"
+        s2 = "use peacock feathers to make a fly"
+        s3 = "buy milk"
+
         self.browser.get(self.live_server_url)
         self.assertIn("To-Do", self.browser.title)
         # self.assertIn("local", self.browser.title)
@@ -36,7 +40,6 @@ class NewVistorTest(LiveServerTestCase):
             "Enter a to-do item"
         )
 
-        s1 = "Buy peacock feathers"
         input_box.send_keys(s1)
         input_box.send_keys(Keys.ENTER)
         edith_list_url = self.browser.current_url
@@ -44,7 +47,6 @@ class NewVistorTest(LiveServerTestCase):
         time.sleep(1)
         self.check_for_row_in_list_table(row_text=f"1: {s1}")
 
-        s2 = "use peacock feathers to make a fly"
         input_box = self.browser.find_element_by_id("id_new_item")
         input_box.send_keys(s2)
         input_box.send_keys(Keys.ENTER)
@@ -62,7 +64,6 @@ class NewVistorTest(LiveServerTestCase):
         self.assertIn(s1, page_text)
         self.assertIn(s2, page_text)
 
-        s3 = "buy milk"
         input_box = self.browser.find_element_by_id("id_new_item")
         input_box.send_keys(s3)
         input_box.send_keys(Keys.ENTER)
