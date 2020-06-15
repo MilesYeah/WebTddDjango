@@ -27,7 +27,10 @@ class NewVistorTest(unittest.TestCase):
         input_box = self.browser.find_element_by_id("id_new_item")
         self.assertEqual(input_box.get_attribute("placeholder"), "Enter a to-do item")
 
-        input_box.send_keys("Buy a peacock feathers")
+        # input_box.send_keys("Buy a peacock feathers")
+        # input_box.send_keys(Keys.ENTER)
+
+        input_box.send_keys("Use peacock feathers to make a fly")
         input_box.send_keys(Keys.ENTER)
 
         # time.sleep(10)
@@ -37,6 +40,7 @@ class NewVistorTest(unittest.TestCase):
         #                 f"New to-do item did not appear in table -- its text was:{table.text}"
         #                 )
         self.assertIn("1: Buy a peacock feathers", [row.text for row in rows])
+        self.assertIn("2: Use peacock feathers to make a fly", [row.text for row in rows])
 
         self.fail("finish the test")
 
