@@ -11,57 +11,32 @@ from lists.models import Item
 
 # Create your tests here.
 
-# class SmokeTest(TestCase):
-#     def test_bad_math(self):
-#         self.assertEqual(1, 2)
-
-#     def test_good_math(self):
-#         self.assertEqual(1, 1)
-
-
-class RobertTest(object):
-
-    def test_home_page_returns_correct_html(self):
-        req = HttpRequest()
-        resp = home_page(req)
-        # self.assertTrue(resp.content.startswith(b'<html>'))
-        # self.assertIn(b"<title>To-Do</title>", resp.content)
-        # self.assertTrue(resp.content.strip().endswith(b"</html>"))
-        html_expected = render_to_string("home.html")
-        html_received = resp.content.decode()
-
-        print("")
-
 
 class HomePageTest(TestCase):
     def test_root_url_resolver_to_home_page_view(self):
         found = resolve("/")
         self.assertEqual(found.func, home_page)
 
-    def test_home_page_returns_correct_html(self):
-        req = HttpRequest()
-        resp = home_page(req)
-        # self.assertTrue(resp.content.startswith(b'<html>'))
-        # self.assertIn(b"<title>To-Do</title>", resp.content)
-        # self.assertTrue(resp.content.strip().endswith(b"</html>"))
-
-        html_expected = render_to_string("home.html")
-        html_received = resp.content.decode()
-
-        # print("")
-        # print(html_received)
-        # print(html_expected)
-
-        self.assertEqual(html_expected, html_received)
+    # def test_home_page_returns_correct_html(self):
+    #     req = HttpRequest()
+    #     resp = home_page(req)
+    #     # self.assertTrue(resp.content.startswith(b'<html>'))
+    #     # self.assertIn(b"<title>To-Do</title>", resp.content)
+    #     # self.assertTrue(resp.content.strip().endswith(b"</html>"))
+    #
+    #     html_expected = render_to_string("home.html")
+    #     html_received = resp.content.decode()
+    #
+    #     # print("")
+    #     # print(html_received)
+    #     # print(html_expected)
+    #
+    #     self.assertEqual(html_expected, html_received)
 
     def test_home_page_can_save_a_post_request(self):
         s1 = "A new list item"
 
-        request = HttpRequest()
-        request.method = "POST"
-        request.POST['item_text'] = s1
-
-        response = home_page(request)
+        self.client.post("/", data={'item_text': s1})
 
         self.assertEqual(Item.objects.count(), 1)
         new_item = Item.objects.first()
@@ -70,11 +45,7 @@ class HomePageTest(TestCase):
     def test_home_page_redirects_after_POST(self):
         s1 = "A new list item"
 
-        request = HttpRequest()
-        request.method = "POST"
-        request.POST['item_text'] = s1
-
-        response = home_page(request)
+        response = self.client.post("/", data={'item_text': s1})
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/')

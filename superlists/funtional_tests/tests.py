@@ -1,13 +1,14 @@
-
 import time
+
 import unittest
 from selenium import webdriver
-from variables import DRIVER_CHROME_FPN
+from funtional_tests.variables import DRIVER_CHROME_FPN
+from django.test import LiveServerTestCase
 
 from selenium.webdriver.common.keys import Keys
 
 
-class NewVistorTest(unittest.TestCase):
+class NewVistorTest(LiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Chrome(DRIVER_CHROME_FPN)
@@ -22,7 +23,7 @@ class NewVistorTest(unittest.TestCase):
         self.assertIn(row_text, [row.text for row in rows])
 
     def test_can_start_a_list_and_retrive_it_later(self):
-        self.browser.get("http://localhost:8000")
+        self.browser.get(self.live_server_url)
         self.assertIn("To-Do", self.browser.title)
         # self.assertIn("local", self.browser.title)
 
@@ -30,14 +31,25 @@ class NewVistorTest(unittest.TestCase):
         self.assertIn("To-Do", header_text)
 
         input_box = self.browser.find_element_by_id("id_new_item")
-        self.assertEqual(input_box.get_attribute("placeholder"), "Enter a to-do item")
+        self.assertEqual(
+            input_box.get_attribute("placeholder"),
+            "Enter a to-do item"
+        )
 
-        # input_box.send_keys("Buy peacock feathers")
-        input_box.send_keys("Use peacock feathers to make a fly")
+        s1 = "Buy peacock feathers"
+        input_box.send_keys(s1)
         input_box.send_keys(Keys.ENTER)
+        time.sleep(1)
+        self.check_for_row_in_list_table(row_text=f"1: {s1}")
 
-        self.check_for_row_in_list_table(row_text="1: Buy peacock feathers")
-        self.check_for_row_in_list_table(row_text="2: Use peacock feathers to make a fly")
+        s2 = "use peacock feathers to make a fly"
+        input_box = self.browser.find_element_by_id("id_new_item")
+        input_box.send_keys(s2)
+        input_box.send_keys(Keys.ENTER)
+        time.sleep(1)
+
+        self.check_for_row_in_list_table(row_text=f"2: {s2}")
+        self.check_for_row_in_list_table(row_text=f"1: {s1}")
         # time.sleep(10)
 
         self.fail("finish the test")
