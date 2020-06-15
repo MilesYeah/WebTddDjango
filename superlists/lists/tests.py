@@ -1,3 +1,4 @@
+
 from django.test import TestCase
 from django.urls import resolve
 from django.http import HttpRequest
@@ -7,6 +8,7 @@ from django.template.loader import render_to_string
 from lists.views import home_page
 from lists.models import Item
 
+
 # Create your tests here.
 
 # class SmokeTest(TestCase):
@@ -15,6 +17,20 @@ from lists.models import Item
 
 #     def test_good_math(self):
 #         self.assertEqual(1, 1)
+
+
+class RobertTest(object):
+
+    def test_home_page_returns_correct_html(self):
+        req = HttpRequest()
+        resp = home_page(req)
+        # self.assertTrue(resp.content.startswith(b'<html>'))
+        # self.assertIn(b"<title>To-Do</title>", resp.content)
+        # self.assertTrue(resp.content.strip().endswith(b"</html>"))
+        html_expected = render_to_string("home.html")
+        html_received = resp.content.decode()
+
+        print("")
 
 
 class HomePageTest(TestCase):
@@ -28,18 +44,57 @@ class HomePageTest(TestCase):
         # self.assertTrue(resp.content.startswith(b'<html>'))
         # self.assertIn(b"<title>To-Do</title>", resp.content)
         # self.assertTrue(resp.content.strip().endswith(b"</html>"))
-        expeted_html = render_to_string("home.html")
-        self.assertEqual(resp.content.decode(), expeted_html)
+
+        html_expected = render_to_string("home.html")
+        html_received = resp.content.decode()
+
+        # print("")
+        # print(html_received)
+        # print(html_expected)
+
+        self.assertEqual(html_expected, html_received)
 
     def test_home_page_can_save_a_post_request(self):
+        s1 = "A new list item"
+
         request = HttpRequest()
         request.method = "POST"
-        request.POST['item_text'] = "A new list item"
+        request.POST['item_text'] = s1
 
         response = home_page(request)
-        self.assertIn("A new list item", response.content.decode())
-        expected_html = render_to_string('home.html', {'new_item_text': "A new list item"})
-        self.assertEqual(response.content.decode(), expected_html)
+
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, s1)
+
+    def test_home_page_redirects_after_POST(self):
+        s1 = "A new list item"
+
+        request = HttpRequest()
+        request.method = "POST"
+        request.POST['item_text'] = s1
+
+        response = home_page(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+    def test_home_page_only_saves_items_when_necessary(self):
+        request = HttpRequest()
+        home_page(request)
+        self.assertEqual(Item.objects.count(), 0)
+
+    def test_home_page_displays_all_list_items(self):
+        s1 = "item1"
+        s2 = "item2"
+        Item.objects.create(text=s1)
+        Item.objects.create(text=s2)
+
+        request = HttpRequest()
+        response = home_page(request)
+
+        self.assertIn(s1, response.content.decode())
+        self.assertIn(s2, response.content.decode())
 
 
 class ItemModelTest(TestCase):
@@ -65,4 +120,5 @@ class ItemModelTest(TestCase):
 
 
 if __name__ == "__main__":
-    pass
+
+    print("")
